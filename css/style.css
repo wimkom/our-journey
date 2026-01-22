@@ -84,7 +84,7 @@ nav a:hover {
     width: 100%;
     border-radius: 12px;
     cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease; filter 0.3s ease;
+    transition: transform 0.25s ease box-shadow 0.25s ease; filter: 0.3s ease;
 }
 
 .gallery img:hover {
@@ -134,6 +134,35 @@ nav a:hover {
     border-radius: 12px;
 }
 
+.journal .entry {
+    margin-bottom: 60px;
+}
+
+.journal h2 {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+body.dark .journal h2 {
+    color: #aaa;
+}
+
+.journal h3 {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+}
+
+.journal img {
+    width: 100%;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.journal p {
+    line-height: 1.7;
+}
 
 #darkToggle {
     margin-left: 20px;
