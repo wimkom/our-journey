@@ -6,21 +6,16 @@
     <link rel="stylesheet" href="./css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
 <body class="dark">
 
-    <nav>
-        <a href="index.html">Home</a> |
-        <a href="gallery.html">Gallery</a> |
-        <a href="journal.html" class="active">Journal</a>
-
-        <button id="darkToggle">🌙</button>
-    </nav>
+    <div id="navbar"></div>
 
     <div class="container journal">
 
         <article class="entry">
-            <h2>May 12, 2025</h2>
-            <h3>First Trip Together</h3>
+            <h2>May 25th, 2025</h2>
+            <h3>Matched Together</h3>
 
             <img src="./images/photo1.jpg" loading="lazy">
 
@@ -44,25 +39,37 @@
     </div>
 
 <script>
-    const toggle = document.getElementById("darkToggle");
+    fetch("nav.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("navbar").innerHTML = html;
 
-    // cek preferensi saat page load
-    if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-        toggle.textContent = "☀️";
-    }
+            const current = location.pathname.split("/").pop();
+            document.querySelectorAll("nav a").forEach(link => {
+                if (link.getAttribute("href") === current) {
+                    link.classList.add("active");
+                }
+            });
 
-    toggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
+            const toggle = document.getElementById("darkToggle");
+            if (!toggle) return;
 
-        if (document.body.classList.contains("dark")) {
-            localStorage.setItem("theme", "dark");
-            toggle.textContent = "☀️";
-        } else {
-            localStorage.setItem("theme", "light");
-            toggle.textContent = "🌙";
-        }
-    });
+            if (localStorage.getItem("theme") === "dark") {
+                document.body.classList.add("dark");
+                toggle.textContent = "☀️";
+            }
+
+            toggle.addEventListener("click", () => {
+                document.body.classList.toggle("dark");
+                if (document.body.classList.contains("dark")) {
+                    localStorage.setItem("theme", "dark");
+                    toggle.textContent = "☀️";
+                } else {
+                    localStorage.setItem("theme", "light");
+                    toggle.textContent = "🌙";
+                }
+            });
+        });
 </script>
 
 </body>
