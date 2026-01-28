@@ -1,7 +1,26 @@
+/* === ROOT COLORS === */
+:root {
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --bg-light: #ffffff;
+  --bg-dark: #111111;
+}
+
+/* === REDUCE MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 body {
     font-family: "Playfair Display", serif;
     background-color: #fff;
-    color: #222;
+    color: var(--text-primary);
     text-align: center;
     padding: 60px;
     animation: fadeIn 0.6s ease;
@@ -26,13 +45,37 @@ h1 {
 
 p {
     font-size: 1.1rem;
-    color: #555;
+    color: var(--text-secondary);
     line-height: 1.8;
 }
 
 img {
     margin-top: 30px;
     border-radius: 12px;
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+/* === FOCUS STATES === */
+nav a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+.gallery img:focus-visible {
+  outline: 2px solid #222;
+  outline-offset: 2px;
+}
+
+body.dark nav a:focus-visible,
+body.dark button:focus-visible,
+body.dark input:focus-visible,
+body.dark .gallery img:focus-visible {
+  outline: 2px solid #fff;
 }
 
 nav {
@@ -46,7 +89,8 @@ nav a {
     margin: 0 10px;
     position: relative;
     transition: color 0.3s ease;
-
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 nav a::after {
@@ -73,7 +117,6 @@ nav a.active {
     font-weight: 600;
     text-decoration: underline;
 }
-
 
 nav a:hover {
     text-decoration: underline;
@@ -103,7 +146,8 @@ nav a:hover {
     object-fit: cover;
 }
 
-.gallery img:hover {
+.gallery img:hover,
+.gallery img:focus-visible {
     transform: translateY(-4px);
     box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     filter: brightness(0.85);
@@ -111,7 +155,7 @@ nav a:hover {
 
 .gallery figure {
     margin: 0;
-    position:relative;
+    position: relative;
 }
 
 .gallery figcaption {
@@ -129,7 +173,8 @@ nav a:hover {
     pointer-events: none;
 }
 
-.gallery figure:hover figcaption {
+.gallery figure:hover figcaption,
+.gallery figure:focus-within figcaption {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
@@ -137,7 +182,7 @@ nav a:hover {
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.9);
     display: none;
     justify-content: center;
     align-items: center;
@@ -146,17 +191,19 @@ nav a:hover {
 
 .modal img {
     max-width: 90%;
-    max-height: 90%;
+    max-height: 90vh;
     border-radius: 12px;
+    display: block;
 }
 
 .journal .entry {
     margin-bottom: 60px;
+    text-align: left;
 }
 
 .journal h2 {
-    font-size: 0.9rem;
-    font-weight: 400;
+    font-size: 1rem;
+    font-weight: 500;
     color: #888;
     margin-bottom: 5px;
 }
@@ -178,14 +225,30 @@ body.dark .journal h2 {
 
 .journal p {
     line-height: 1.7;
+    color: var(--text-primary);
 }
 
 #darkToggle {
     margin-left: 20px;
     background: none;
-    border: none;
+    border: 1px solid #222;
+    border-radius: 4px;
     font-size: 1.1rem;
     cursor: pointer;
+    padding: 4px 8px;
+    transition: background-color 0.2s ease;
+}
+
+#darkToggle:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+body.dark #darkToggle {
+    border-color: #fff;
+}
+
+body.dark #darkToggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 body.dark {
@@ -210,9 +273,8 @@ body.dark .gallery figcaption {
     text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 
-body.dark .container p{
+body.dark .container p {
     color: #f2f2f2;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 
 @media (max-width: 768px) {
