@@ -6,7 +6,6 @@
     <title>Gallery</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/player.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 
     <meta name="description" content="Photo gallery from Our Journey.">
 
@@ -17,8 +16,9 @@
     <meta property="og:url" content="https://wimkom.github.io/our-journey/gallery.html">
 </head>
 
-<div id="modal" class="modal">
-    <img id="modalImg">
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <img id="modalImg" alt="Enlarged photo">
+    <button id="modal-close" aria-label="Close image" style="position: absolute; top: 10px; right: 10px; background: white; border: none; padding: 8px 12px; cursor: pointer; border-radius: 4px;">✕</button>
 </div>
 
 <body class="dark">
@@ -28,95 +28,83 @@
     <div class="container">
         <h1>Gallery</h1>
 
-        <div class="gallery">
+        <div class="gallery" role="region" aria-label="Photo gallery">
             <figure>
-                <img src="./images/photo1.webp" alt="" loading="lazy" width="1200" length="800">
+                <img src="./images/photo1.webp" alt="Birthday party selfies" width="1200" height="800" loading="lazy" tabindex="0">
                 <figcaption>Ulang tahun awim</figcaption>
             </figure>
 
             <figure>
-                <img src="./images/photo2.webp" alt="" loading="lazy" width="1200" length="800">
+                <img src="./images/photo2.webp" alt="Birthday party selfies" width="1200" height="800" loading="lazy" tabindex="0">
                 <figcaption>Ulang tahun awim p2</figcaption>
             </figure>
 
             <figure>
-                <img src="./images/photo3.webp" alt="" loading="lazy" width="1200" length="800">   
+                <img src="./images/photo3.webp" alt="PIM date" width="1200" height="800" loading="lazy" tabindex="0">   
                 <figcaption>PIM date, full day bareng</figcaption>
             </figure>
 
             <figure>
-                <img src="./images/photo4.webp" alt="" loading="lazy" width="1200" length="800">
+                <img src="./images/photo4.webp" alt="Nongkrong pertama abis ga ketemuan lama" width="1200" height="800" loading="lazy" tabindex="0">
                 <figcaption>Nongkrong pertama abis ga ketemuan lama</figcaption>
             </figure>
         </div> 
     </div>
 
-<script>
-    fetch("nav.html")
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById("navbar").innerHTML = html;
-
-            const current = location.pathname.split("/").pop();
-            document.querySelectorAll("nav a").forEach(link => {
-                if (link.getAttribute("href") === current) {
-                    link.classList.add("active");
-                }
-            });
-
-            const toggle = document.getElementById("darkToggle");
-            if (!toggle) return;
-
-            if (localStorage.getItem("theme") === "dark") {
-                document.body.classList.add("dark");
-                toggle.textContent = "☀️";
-            }
-
-            toggle.addEventListener("click", () => {
-                document.body.classList.toggle("dark");
-                if (document.body.classList.contains("dark")) {
-                    localStorage.setItem("theme", "dark");
-                    toggle.textContent = "☀️";
-                } else {
-                    localStorage.setItem("theme", "light");
-                    toggle.textContent = "🌙";
-                }
-            });
-        });
-</script>
+<script src="js/init.js"></script>
 
 <script>
-    const modal = document.getElementById("modal");
-    const modalImg = document.getElementById("modalImg");
+  const modal = document.getElementById("modal");
+  const modalImg = document.getElementById("modalImg");
+  const modalClose = document.getElementById("modal-close");
 
-    document.querySelectorAll(".gallery img").forEach(img => {
-        img.addEventListener("click", () => {
-            modal.style.display = "flex";
-            modalImg.src = img.src;
-        });
+  document.querySelectorAll(".gallery img").forEach(img => {
+    img.addEventListener("click", () => {
+      modal.style.display = "flex";
+      modalImg.src = img.src;
+      modalClose.focus();
     });
+    
+    img.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        modal.style.display = "flex";
+        modalImg.src = img.src;
+        modalClose.focus();
+      }
+    });
+  });
 
-    modal.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
+  modalClose.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.style.display === "flex") {
+      modal.style.display = "none";
+    }
+  });
 </script>
 
-<button id="user-gesture" style="display:none"></button>
+<div id="music-player" role="region" aria-label="Music player">
+  <button id="prev" aria-label="Previous track">⏮</button>
+  <button id="play" aria-label="Play music">▶</button>
+  <button id="next" aria-label="Next track">⏭</button>
 
-<div id="music-player">
-  <button id="prev">⏮</button>
-  <button id="play">▶</button>
-  <button id="next">⏭</button>
-
-  <span id="title">
+  <span id="title" aria-live="polite">
   <span id="title-text"></span>
 </span>
 
-  <div id="progress-container">
+  <div id="progress-container" role="progressbar" aria-label="Song progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
   <div id="progress"></div>
     </div>
 
-  <input type="range" id="volume" min="0" max="1" step="0.01">
+  <input type="range" id="volume" aria-label="Volume control" min="0" max="1" step="0.01">
 </div>
 
 <audio id="audio"></audio>
