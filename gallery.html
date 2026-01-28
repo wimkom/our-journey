@@ -52,46 +52,6 @@
         </div> 
     </div>
 
-<script src="js/init.js"></script>
-
-<script>
-  const modal = document.getElementById("modal");
-  const modalImg = document.getElementById("modalImg");
-  const modalClose = document.getElementById("modal-close");
-
-  document.querySelectorAll(".gallery img").forEach(img => {
-    img.addEventListener("click", () => {
-      modal.style.display = "flex";
-      modalImg.src = img.src;
-      modalClose.focus();
-    });
-    
-    img.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        modal.style.display = "flex";
-        modalImg.src = img.src;
-        modalClose.focus();
-      }
-    });
-  });
-
-  modalClose.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.style.display === "flex") {
-      modal.style.display = "none";
-    }
-  });
-</script>
-
 <div id="music-player" role="region" aria-label="Music player">
   <button id="prev" aria-label="Previous track">⏮</button>
   <button id="play" aria-label="Play music">▶</button>
@@ -110,6 +70,9 @@
 
 <audio id="audio"></audio>
 
+<script src="js/init.js"></script>
+<script src="js/gallery.js"></script>
 <script src="js/player.js"></script>
+
 </body>
 </html>
