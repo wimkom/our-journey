@@ -7,6 +7,36 @@ const volume = document.getElementById("volume");
 const progressContainer = document.getElementById("progress-container");
 const progress = document.getElementById("progress");
 
+// FIXED: Helper function to check localStorage availability
+function storageAvailable() {
+  try {
+    const test = '__storage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// FIXED: Safe localStorage getter
+function getStorage(key, defaultValue) {
+  if (storageAvailable()) {
+    return localStorage.getItem(key) || defaultValue;
+  }
+  return defaultValue;
+}
+
+// FIXED: Safe localStorage setter
+function setStorage(key, value) {
+  if (storageAvailable()) {
+    try {
+      localStorage.setItem(key, value);
+    } catch(e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+  }
+}
 
 const songs = [
   { name: "TULUS - Cahaya", file: "./music/song1.mp3" },
@@ -16,13 +46,13 @@ const songs = [
 ];
 
 // ==========================
-// LOAD STATE
+// LOAD STATE (with safe localStorage)
 // ==========================
-let index = parseInt(localStorage.getItem("songIndex")) || 0;
-let isPlaying = localStorage.getItem("isPlaying") === "true";
-let savedTime = parseFloat(localStorage.getItem("currentTime")) || 0;
-let savedVolume = parseFloat(localStorage.getItem("volume")) || 0.6;
-let lastSong = localStorage.getItem("lastSong");
+let index = parseInt(getStorage("songIndex", "0"));
+let isPlaying = getStorage("isPlaying", "false") === "true";
+let savedTime = parseFloat(getStorage("currentTime", "0"));
+let savedVolume = parseFloat(getStorage("volume", "0.6"));
+let lastSong = getStorage("lastSong", "");
 
 // ==========================
 // INIT
@@ -50,22 +80,24 @@ function loadSong(i) {
     }
   });
 
-  localStorage.setItem("songIndex", i);
-  localStorage.setItem("lastSong", songs[i].file);
+  setStorage("songIndex", i);
+  setStorage("lastSong", songs[i].file);
 }
 
 function resetTime() {
   audio.currentTime = 0;
-  localStorage.setItem("currentTime", 0);
+  progress.style.width = "0%";
+  setStorage("currentTime", 0);
 }
 
 function playSong() {
   audio.play().then(() => {
     isPlaying = true;
     playBtn.textContent = "⏸";
-    localStorage.setItem("isPlaying", "true");
-  }).catch(() => {
+    setStorage("isPlaying", "true");
+  }).catch((err) => {
     // autoplay blocked (browser policy)
+    console.warn('Autoplay blocked:', err);
   });
 }
 
@@ -73,7 +105,7 @@ function pauseSong() {
   audio.pause();
   isPlaying = false;
   playBtn.textContent = "▶";
-  localStorage.setItem("isPlaying", "false");
+  setStorage("isPlaying", "false");
 }
 
 // ==========================
@@ -81,7 +113,7 @@ function pauseSong() {
 // ==========================
 loadSong(index);
 
-// 🔑 PENTING: PLAY & RESTORE DI SINI
+// 🔒 PENTING: PLAY & RESTORE DI SINI
 audio.addEventListener("loadedmetadata", () => {
   // restore time hanya kalau lagu sama
   if (lastSong === audio.src) {
@@ -90,7 +122,7 @@ audio.addEventListener("loadedmetadata", () => {
 
   // autoplay lintas page
   if (
-    localStorage.getItem("autoplayAllowed") === "true" &&
+    getStorage("autoplayAllowed", "false") === "true" &&
     isPlaying
   ) {
     playSong();
@@ -123,14 +155,14 @@ prevBtn.addEventListener("click", () => {
 // ==========================
 volume.addEventListener("input", () => {
   audio.volume = volume.value;
-  localStorage.setItem("volume", volume.value);
+  setStorage("volume", volume.value);
 });
 
 // ==========================
 // SAVE PROGRESS
 // ==========================
 setInterval(() => {
-  localStorage.setItem("currentTime", audio.currentTime);
+  setStorage("currentTime", audio.currentTime);
 }, 1000);
 
 // ==========================
@@ -146,8 +178,8 @@ audio.addEventListener("ended", () => {
 document.addEventListener(
   "click",
   () => {
-    if (localStorage.getItem("autoplayAllowed") !== "true") {
-      localStorage.setItem("autoplayAllowed", "true");
+    if (getStorage("autoplayAllowed", "false") !== "true") {
+      setStorage("autoplayAllowed", "true");
       playSong();
     }
   },
@@ -168,8 +200,4 @@ progressContainer.addEventListener("click", (e) => {
   audio.currentTime = (clickX / width) * duration;
 });
 
-function resetTime() {
-  audio.currentTime = 0;
-  progress.style.width = "0%";
-  localStorage.setItem("currentTime", 0);
-}
+// FIXED: Removed duplicate resetTime() function that was here
