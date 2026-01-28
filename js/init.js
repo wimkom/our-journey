@@ -14,7 +14,24 @@ function storageAvailable() {
   }
 }
 
-// FIXED: Added error handling for fetch
+// ==========================
+// RESTORE THEME IMMEDIATELY (before anything else loads)
+// ==========================
+if (storageAvailable()) {
+  const savedTheme = localStorage.getItem("theme");
+  
+  // If user has saved a preference, apply it immediately
+  if (savedTheme === "light") {
+    document.body.classList.remove("dark");
+  } else if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+  }
+  // If no saved theme, keep the default from HTML (dark)
+}
+
+// ==========================
+// LOAD NAVIGATION
+// ==========================
 fetch("nav.html")
   .then(res => {
     if (!res.ok) {
@@ -33,18 +50,16 @@ fetch("nav.html")
       }
     });
 
-    // Setup theme toggle
+    // Setup theme toggle button
     const toggle = document.getElementById("darkToggle");
     if (!toggle) return;
 
+    // Set the toggle button icon based on current theme
+    const isDark = document.body.classList.contains("dark");
+    toggle.textContent = isDark ? "☀️" : "🌙";
+
     // FIXED: Check localStorage availability before using
     if (storageAvailable()) {
-      // Restore theme from localStorage
-      if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark");
-        toggle.textContent = "☀️";
-      }
-
       // Theme toggle click handler
       toggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
@@ -84,9 +99,19 @@ fetch("nav.html")
     // Setup basic theme toggle even in fallback mode
     const toggle = document.getElementById("darkToggle");
     if (toggle) {
+      // Set icon based on current theme
+      const isDark = document.body.classList.contains("dark");
+      toggle.textContent = isDark ? "☀️" : "🌙";
+      
       toggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
-        toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+        const newIsDark = document.body.classList.contains("dark");
+        toggle.textContent = newIsDark ? "☀️" : "🌙";
+        
+        // Try to save if possible
+        if (storageAvailable()) {
+          localStorage.setItem("theme", newIsDark ? "dark" : "light");
+        }
       });
     }
   });
