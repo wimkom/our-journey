@@ -6,36 +6,9 @@ const playBtn = document.getElementById("play");
 const nextBtn = document.getElementById("next");
 const prevBtn = document.getElementById("prev");
 const title = document.getElementById("title");
-const titleText = document.getElementById("title-text");
 const volume = document.getElementById("volume");
 const progressContainer = document.getElementById("progress-container");
 const progress = document.getElementById("progress");
-
-// ==========================
-// SAFE STORAGE
-// ==========================
-function storageAvailable() {
-  try {
-    const t = "__test__";
-    localStorage.setItem(t, t);
-    localStorage.removeItem(t);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function getStorage(key, fallback) {
-  return storageAvailable() ? localStorage.getItem(key) ?? fallback : fallback;
-}
-
-function setStorage(key, value) {
-  if (storageAvailable()) {
-    try {
-      localStorage.setItem(key, value);
-    } catch {}
-  }
-}
 
 // ==========================
 // PLAYLIST
@@ -48,13 +21,18 @@ const songs = [
 ];
 
 // ==========================
-// STATE
+// STORAGE HELPERS
 // ==========================
-let index = parseInt(getStorage("songIndex", "0"), 10);
-let isPlaying = getStorage("isPlaying", "false") === "true";
-let savedTime = parseFloat(getStorage("currentTime", "0"));
-let savedVolume = parseFloat(getStorage("volume", "0.6"));
-let lastSong = getStorage("lastSong", "");
+const get = (k, d) => localStorage.getItem(k) ?? d;
+const set = (k, v) => localStorage.setItem(k, v);
+
+// ==========================
+// STATE (RESTORE)
+// ==========================
+let index = parseInt(get("player:index", "0"), 10);
+let isPlaying = get("player:playing", "false") === "true";
+let savedTime = parseFloat(get("player:time", "0"));
+let savedVolume = parseFloat(get("player:volume", "0.6"));
 
 // ==========================
 // INIT
@@ -63,96 +41,72 @@ audio.volume = savedVolume;
 volume.value = savedVolume;
 
 // ==========================
-// MARQUEE (INI KUNCI)
-// ==========================
-function updateTitleScroll() {
-  // reset total
-  title.classList.remove("scroll");
-  titleText.style.animation = "none";
-
-  // force browser reflow
-  void titleText.offsetWidth;
-
-  // delay kecil biar layout settle
-  setTimeout(() => {
-    if (titleText.scrollWidth > title.clientWidth) {
-      title.classList.add("scroll");
-      titleText.style.animation = "";
-    }
-  }, 60);
-}
-
-// ==========================
 // LOAD SONG
 // ==========================
 function loadSong(i) {
   audio.src = songs[i].file;
-  titleText.textContent = songs[i].name;
+  title.textContent = songs[i].name;
+  title.classList.remove("expanded");
 
-  updateTitleScroll();
-
-  setStorage("songIndex", i);
-  setStorage("lastSong", songs[i].file);
+  set("player:index", i);
 }
 
 // ==========================
-// PLAYER CONTROLS
-// ==========================
-function playSong() {
-  audio.play().then(() => {
-    isPlaying = true;
-    playBtn.textContent = "⏸";
-    setStorage("isPlaying", "true");
-  }).catch(() => {});
-}
-
-function pauseSong() {
-  audio.pause();
-  isPlaying = false;
-  playBtn.textContent = "▶";
-  setStorage("isPlaying", "false");
-}
-
-function resetTime() {
-  audio.currentTime = 0;
-  progress.style.width = "0%";
-  setStorage("currentTime", 0);
-}
-
-// ==========================
-// LOAD FIRST
+// LOAD INITIAL
 // ==========================
 loadSong(index);
 
+// restore time AFTER metadata ready
 audio.addEventListener("loadedmetadata", () => {
-  if (lastSong === audio.src) {
+  if (savedTime > 0) {
     audio.currentTime = savedTime;
   }
 
-  if (getStorage("autoplayAllowed", "false") === "true" && isPlaying) {
-    playSong();
+  if (isPlaying) {
+    audio.play().catch(() => {});
+    playBtn.textContent = "⏸";
   }
 });
 
 // ==========================
-// BUTTON EVENTS
+// PLAY / PAUSE
 // ==========================
 playBtn.addEventListener("click", () => {
-  isPlaying ? pauseSong() : playSong();
+  if (audio.paused) {
+    audio.play().catch(() => {});
+    playBtn.textContent = "⏸";
+    set("player:playing", "true");
+  } else {
+    audio.pause();
+    playBtn.textContent = "▶";
+    set("player:playing", "false");
+  }
 });
 
+// ==========================
+// NEXT / PREV
+// ==========================
 nextBtn.addEventListener("click", () => {
   index = (index + 1) % songs.length;
-  resetTime();
   loadSong(index);
-  playSong();
+  audio.play().catch(() => {});
+  playBtn.textContent = "⏸";
+  set("player:playing", "true");
 });
 
 prevBtn.addEventListener("click", () => {
   index = (index - 1 + songs.length) % songs.length;
-  resetTime();
   loadSong(index);
-  playSong();
+  audio.play().catch(() => {});
+  playBtn.textContent = "⏸";
+  set("player:playing", "true");
+});
+
+// ==========================
+// TITLE EXPAND
+// ==========================
+title.addEventListener("click", () => {
+  title.classList.toggle("expanded");
 });
 
 // ==========================
@@ -160,22 +114,24 @@ prevBtn.addEventListener("click", () => {
 // ==========================
 volume.addEventListener("input", () => {
   audio.volume = volume.value;
-  setStorage("volume", volume.value);
+  set("player:volume", volume.value);
 });
 
 // ==========================
-// PROGRESS
+// PROGRESS + SAVE TIME
 // ==========================
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
-  const percent = (audio.currentTime / audio.duration) * 100;
-  progress.style.width = percent + "%";
+  progress.style.width =
+    (audio.currentTime / audio.duration) * 100 + "%";
+
+  set("player:time", audio.currentTime);
 });
 
 progressContainer.addEventListener("click", (e) => {
   const width = progressContainer.clientWidth;
-  const clickX = e.offsetX;
-  audio.currentTime = (clickX / width) * audio.duration;
+  audio.currentTime =
+    (e.offsetX / width) * audio.duration;
 });
 
 // ==========================
@@ -184,20 +140,3 @@ progressContainer.addEventListener("click", (e) => {
 audio.addEventListener("ended", () => {
   nextBtn.click();
 });
-
-// ==========================
-// SAVE TIME
-// ==========================
-setInterval(() => {
-  setStorage("currentTime", audio.currentTime);
-}, 1000);
-
-// ==========================
-// AUTOPLAY UNLOCK (1x)
-// ==========================
-document.addEventListener("click", () => {
-  if (getStorage("autoplayAllowed", "false") !== "true") {
-    setStorage("autoplayAllowed", "true");
-    playSong();
-  }
-}, { once: true });

@@ -1,5 +1,5 @@
 /* =========================
-   MINI GLASS MUSIC PLAYER
+   MINI MUSIC PLAYER (FINAL)
    ========================= */
 
 #music-player {
@@ -9,118 +9,102 @@
   transform: translateX(-50%);
 
   width: calc(100% - 24px);
-  max-width: 450px;
-  height: 48px;
+  max-width: 460px;
 
   display: flex;
   align-items: center;
   gap: 10px;
 
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 14px;
 
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 
-  z-index: 999;
+  z-index: 1000;
 }
 
 /* ===== Buttons ===== */
 #music-player button {
   background: none;
   border: none;
-  color: #ffffff;
+  color: #fff;
   font-size: 14px;
-  padding: 4px 6px;
   cursor: pointer;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
-  border-radius: 2px;
   flex-shrink: 0;
 }
 
-#music-player button:hover {
-  opacity: 1;
-}
-
-#music-player button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 1px;
-}
-
-/* ===== Song Title ===== */
+/* ===== TITLE WRAPPER ===== */
 #title {
-  width: 140px;
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #fff;
+
+  cursor: pointer;
+  user-select: none;
+
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
+
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease;
 }
 
-#title-text {
-  display: inline-block;
-  white-space: nowrap;
-  padding-right: 40px;
+/* expanded */
+#title.expanded {
+  white-space: normal;
+  max-height: 3.6em; /* ~3 baris */
+  opacity: 0.95;
 }
 
-/* ===== Progress Bar ===== */
+/* collapsed */
+#title:not(.expanded) {
+  max-height: 1.35em;
+}
+
+/* ===== Progress ===== */
 #progress-container {
   flex: 1;
   height: 3px;
+  background: rgba(255,255,255,0.3);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
-  cursor: pointer;
   overflow: hidden;
-  min-width: 40px;
+  cursor: pointer;
 }
 
 #progress {
   height: 100%;
   width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.95),
-    rgba(255, 255, 255, 0.6)
-  );
+  background: #fff;
 }
 
-/* ===== Volume Slider ===== */
+/* ===== Volume ===== */
 #volume {
   width: 60px;
-  height: 4px;
-  cursor: pointer;
-  accent-color: #ffffff;
   flex-shrink: 0;
 }
 
-#volume:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: 2px;
-}
-
-/* ===== Mobile Friendly ===== */
+/* ===== Mobile ===== */
 @media (max-width: 480px) {
-  #music-player {
-    max-width: 95vw;
-    gap: 6px;
-    padding: 6px 8px;
-    height: 44px;
-  }
-
-  #music-player button {
-    font-size: 12px;
-    padding: 2px 4px;
-  }
-
   #title {
-    flex: 0 1 100px;
     font-size: 11px;
   }
 
   #volume {
     width: 48px;
+  }
+}
+
+/* ===== Reduce Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  #title {
+    transition: none;
   }
 }
