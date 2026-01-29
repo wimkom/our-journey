@@ -1,13 +1,8 @@
-/* =========================
-   MINI MUSIC PLAYER (FINAL)
-   ========================= */
-
 #music-player {
   position: fixed;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-
   width: calc(100% - 24px);
   max-width: 460px;
 
@@ -17,18 +12,13 @@
 
   padding: 10px 12px;
   border-radius: 14px;
-
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0,0,0,0.85);
   backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
   border: 1px solid rgba(255,255,255,0.25);
   box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-
   z-index: 1000;
 }
 
-/* ===== Buttons ===== */
 #music-player button {
   background: none;
   border: none;
@@ -38,38 +28,29 @@
   flex-shrink: 0;
 }
 
-/* ===== TITLE WRAPPER ===== */
 #title {
   flex: 1;
   font-size: 12px;
   line-height: 1.35;
   color: #fff;
-
   cursor: pointer;
-  user-select: none;
-
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 
-  transition:
-    max-height 0.35s ease,
-    opacity 0.25s ease;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
 }
 
-/* expanded */
 #title.expanded {
   white-space: normal;
-  max-height: 3.6em; /* ~3 baris */
+  max-height: 3.6em;
   opacity: 0.95;
 }
 
-/* collapsed */
 #title:not(.expanded) {
   max-height: 1.35em;
 }
 
-/* ===== Progress ===== */
 #progress-container {
   flex: 1;
   height: 3px;
@@ -85,26 +66,15 @@
   background: #fff;
 }
 
-/* ===== Volume ===== */
 #volume {
   width: 60px;
-  flex-shrink: 0;
 }
 
-/* ===== Mobile ===== */
-@media (max-width: 480px) {
-  #title {
-    font-size: 11px;
-  }
-
-  #volume {
-    width: 48px;
-  }
+@media (max-width:480px) {
+  #title { font-size: 11px; }
+  #volume { width: 48px; }
 }
 
-/* ===== Reduce Motion ===== */
 @media (prefers-reduced-motion: reduce) {
-  #title {
-    transition: none;
-  }
+  #title { transition: none; }
 }

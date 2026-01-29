@@ -27,11 +27,12 @@ const get = (k, d) => localStorage.getItem(k) ?? d;
 const set = (k, v) => localStorage.setItem(k, v);
 
 // ==========================
-// STATE (RESTORE)
+// STATE (RESTORE ON LOAD)
 // ==========================
 let index = parseInt(get("player:index", "0"), 10);
 let isPlaying = get("player:playing", "false") === "true";
 let savedTime = parseFloat(get("player:time", "0"));
+let expanded = get("player:titleExpanded", "false") === "true";
 let savedVolume = parseFloat(get("player:volume", "0.6"));
 
 // ==========================
@@ -41,23 +42,26 @@ audio.volume = savedVolume;
 volume.value = savedVolume;
 
 // ==========================
-// LOAD SONG
+// LOAD SONG (RESET TIME)
 // ==========================
 function loadSong(i) {
   audio.src = songs[i].file;
+  audio.currentTime = 0;
+
   title.textContent = songs[i].name;
-  title.classList.remove("expanded");
+  title.classList.toggle("expanded", expanded);
 
   set("player:index", i);
+  set("player:time", 0);
 }
 
 // ==========================
-// LOAD INITIAL
+// INITIAL LOAD (PAGE LOAD ONLY)
 // ==========================
 loadSong(index);
 
-// restore time AFTER metadata ready
 audio.addEventListener("loadedmetadata", () => {
+  // restore time ONLY on page reload
   if (savedTime > 0) {
     audio.currentTime = savedTime;
   }
@@ -65,6 +69,8 @@ audio.addEventListener("loadedmetadata", () => {
   if (isPlaying) {
     audio.play().catch(() => {});
     playBtn.textContent = "⏸";
+  } else {
+    playBtn.textContent = "▶";
   }
 });
 
@@ -84,7 +90,7 @@ playBtn.addEventListener("click", () => {
 });
 
 // ==========================
-// NEXT / PREV
+// NEXT / PREV (START FROM 0)
 // ==========================
 nextBtn.addEventListener("click", () => {
   index = (index + 1) % songs.length;
@@ -103,10 +109,12 @@ prevBtn.addEventListener("click", () => {
 });
 
 // ==========================
-// TITLE EXPAND
+// TITLE EXPAND (REMEMBER STATE)
 // ==========================
 title.addEventListener("click", () => {
-  title.classList.toggle("expanded");
+  expanded = !expanded;
+  title.classList.toggle("expanded", expanded);
+  set("player:titleExpanded", expanded);
 });
 
 // ==========================
@@ -122,12 +130,16 @@ volume.addEventListener("input", () => {
 // ==========================
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
+
   progress.style.width =
     (audio.currentTime / audio.duration) * 100 + "%";
 
   set("player:time", audio.currentTime);
 });
 
+// ==========================
+// SEEK
+// ==========================
 progressContainer.addEventListener("click", (e) => {
   const width = progressContainer.clientWidth;
   audio.currentTime =
@@ -135,7 +147,7 @@ progressContainer.addEventListener("click", (e) => {
 });
 
 // ==========================
-// AUTO NEXT
+// AUTO NEXT (START FROM 0)
 // ==========================
 audio.addEventListener("ended", () => {
   nextBtn.click();
