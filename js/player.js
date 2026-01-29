@@ -41,18 +41,46 @@ let savedVolume = parseFloat(get("player:volume", "0.6"));
 audio.volume = savedVolume;
 volume.value = savedVolume;
 
+audio.addEventListener("loadedmetadata", () => {
+  // restore HANYA kalau page reload & lagu sama
+  const isSameSong = audio.src.includes(songs[index].file);
+
+  if (isSameSong && savedTime > 0) {
+    audio.currentTime = savedTime;
+  }
+
+  if (isPlaying) {
+    audio.play().catch(() => {});
+    playBtn.textContent = "⏸";
+  } else {
+    playBtn.textContent = "▶";
+  }
+});
+
 // ==========================
 // LOAD SONG (RESET TIME)
 // ==========================
 function loadSong(i) {
-  audio.src = songs[i].file;
-  audio.currentTime = 0;
+  audio.pause();                // stop dulu
+  audio.src = songs[i].file;    // ganti source
+  audio.load();                 // force reload
 
   title.textContent = songs[i].name;
-  title.classList.toggle("expanded", expanded);
+  title.classList.remove("expanded");
 
+  // reset progress UI & storage
+  progress.style.width = "0%";
   set("player:index", i);
   set("player:time", 0);
+
+  // ⬇️ INI KUNCI
+  audio.addEventListener(
+    "loadedmetadata",
+    () => {
+      audio.currentTime = 0;    // ✅ PASTI KE-RESET
+    },
+    { once: true }
+  );
 }
 
 // ==========================
