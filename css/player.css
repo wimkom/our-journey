@@ -54,32 +54,15 @@
 
 /* ===== Song Title ===== */
 #title {
-  flex: 0 1 150px;
+  width: 140px;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 12px;
-  opacity: 0.9;
-  position: relative;
-  color: #ffffff;
 }
 
 #title-text {
   display: inline-block;
   white-space: nowrap;
-}
-
-/* Start animation only when needed */
-#title.scroll #title-text {
-  animation: marquee 15s linear infinite;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+  padding-right: 40px;
 }
 
 /* ===== Progress Bar ===== */
@@ -139,12 +122,5 @@
 
   #volume {
     width: 48px;
-  }
-}
-
-/* === REDUCE MOTION === */
-@media (prefers-reduced-motion: reduce) {
-  #title.scroll #title-text {
-    animation: none !important;
   }
 }
